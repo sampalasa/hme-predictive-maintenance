@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Modifier' if equipment else 'Nouvel' }} équipement{% endblock %}
+{% block page_title %}{{ 'Modifier un équipement' if equipment else 'Nouvel équipement' }}{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="max-width: 520px;">
+    <form method="POST" action="{{ url_for('equipment.update_equipment', equipment_code=equipment.equipment_code) if equipment else url_for('equipment.create_equipment') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="mb-3">
+            <label class="form-label">Code équipement</label>
+            {% if equipment %}
+            <input type="text" class="form-control" value="{{ equipment.equipment_code }}" disabled>
+            {% else %}
+            <input type="text" name="equipment_code" class="form-control" placeholder="ex: EQ-301" required>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Type d'équipement</label>
+            <select name="equipment_type" class="form-select" required>
+                {% for t in ['Excavator', 'Loader', 'Drill', 'Grader', 'Truck', 'Dozer'] %}
+                <option value="{{ t }}" {% if equipment and equipment.equipment_type == t %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% if equipment %}
+        <div class="mb-3">
+            <label class="form-label">Statut</label>
+            <select name="status" class="form-select">
+                {% for s in ['Operational', 'Under Maintenance', 'Critical', 'Decommissioned'] %}
+                <option value="{{ s }}" {% if equipment.status == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        <div class="mb-3">
+            <label class="form-label">Site</label>
+            <input type="text" name="site" class="form-control" value="{{ equipment.site if equipment else '' }}" placeholder="ex: Kamoa-Kakula Pit 1">
+        </div>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a href="{{ url_for('equipment.list_equipment') }}" class="btn btn-outline-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,371 @@
+{
+  "overview": {
+    "n_rows": 9999,
+    "n_columns": 9,
+    "duplicate_rows_before_cleaning": 1,
+    "columns": [
+      {
+        "name": "Timestamp",
+        "dtype": "datetime64[ns]",
+        "missing": 0
+      },
+      {
+        "name": "EquipmentID",
+        "dtype": "object",
+        "missing": 0
+      },
+      {
+        "name": "EquipmentType",
+        "dtype": "object",
+        "missing": 0
+      },
+      {
+        "name": "OperatingHours",
+        "dtype": "int64",
+        "missing": 0
+      },
+      {
+        "name": "EngineTemp",
+        "dtype": "float64",
+        "missing": 0
+      },
+      {
+        "name": "HydraulicPressure",
+        "dtype": "float64",
+        "missing": 0
+      },
+      {
+        "name": "Vibration",
+        "dtype": "float64",
+        "missing": 0
+      },
+      {
+        "name": "FailureMode",
+        "dtype": "object",
+        "missing": 0
+      },
+      {
+        "name": "FailureWithin7Days",
+        "dtype": "int64",
+        "missing": 0
+      }
+    ],
+    "target_counts": {
+      "0": 7539,
+      "1": 2460
+    },
+    "target_rate_pct": 24.6
+  },
+  "numeric_summary": [
+    {
+      "variable": "OperatingHours",
+      "count": 9999.0,
+      "mean": 10037.618,
+      "std": 5738.41,
+      "min": 10.0,
+      "25%": 5056.0,
+      "50%": 10075.0,
+      "75%": 14973.0,
+      "max": 19998.0,
+      "skew": -0.011,
+      "variance": 32929354.727
+    },
+    {
+      "variable": "EngineTemp",
+      "count": 9999.0,
+      "mean": 89.781,
+      "std": 17.386,
+      "min": 60.0,
+      "25%": 74.7,
+      "50%": 89.9,
+      "75%": 104.8,
+      "max": 120.0,
+      "skew": 0.012,
+      "variance": 302.277
+    },
+    {
+      "variable": "HydraulicPressure",
+      "count": 9999.0,
+      "mean": 265.026,
+      "std": 48.965,
+      "min": 180.0,
+      "25%": 222.9,
+      "50%": 264.9,
+      "75%": 306.9,
+      "max": 350.0,
+      "skew": 0.011,
+      "variance": 2397.527
+    },
+    {
+      "variable": "Vibration",
+      "count": 9999.0,
+      "mean": 4.035,
+      "std": 2.278,
+      "min": 0.1,
+      "25%": 2.04,
+      "50%": 4.03,
+      "75%": 6.02,
+      "max": 8.0,
+      "skew": 0.003,
+      "variance": 5.191
+    }
+  ],
+  "correlations": {
+    "matrix": {
+      "OperatingHours": {
+        "OperatingHours": 1.0,
+        "EngineTemp": 0.0091,
+        "HydraulicPressure": 0.0032,
+        "Vibration": 0.0026,
+        "FailureWithin7Days": -0.0175
+      },
+      "EngineTemp": {
+        "OperatingHours": 0.0091,
+        "EngineTemp": 1.0,
+        "HydraulicPressure": 0.0057,
+        "Vibration": -0.0082,
+        "FailureWithin7Days": 0.0073
+      },
+      "HydraulicPressure": {
+        "OperatingHours": 0.0032,
+        "EngineTemp": 0.0057,
+        "HydraulicPressure": 1.0,
+        "Vibration": 0.0174,
+        "FailureWithin7Days": -0.0116
+      },
+      "Vibration": {
+        "OperatingHours": 0.0026,
+        "EngineTemp": -0.0082,
+        "HydraulicPressure": 0.0174,
+        "Vibration": 1.0,
+        "FailureWithin7Days": 0.0009
+      },
+      "FailureWithin7Days": {
+        "OperatingHours": -0.0175,
+        "EngineTemp": 0.0073,
+        "HydraulicPressure": -0.0116,
+        "Vibration": 0.0009,
+        "FailureWithin7Days": 1.0
+      }
+    },
+    "with_target_ranked": [
+      {
+        "variable": "OperatingHours",
+        "pearson_r": -0.0175
+      },
+      {
+        "variable": "HydraulicPressure",
+        "pearson_r": -0.0116
+      },
+      {
+        "variable": "EngineTemp",
+        "pearson_r": 0.0073
+      },
+      {
+        "variable": "Vibration",
+        "pearson_r": 0.0009
+      }
+    ]
+  },
+  "outliers": {
+    "iqr_outlier_counts": {
+      "OperatingHours": 0,
+      "EngineTemp": 0,
+      "HydraulicPressure": 0,
+      "Vibration": 0
+    },
+    "isolation_forest_anomalies": 200,
+    "isolation_forest_pct": 2.0
+  },
+  "equipment_type_counts": {
+    "Excavator": 1719,
+    "Grader": 1713,
+    "Dozer": 1678,
+    "Drill": 1656,
+    "Loader": 1623,
+    "Truck": 1610
+  },
+  "failure_mode_counts": {
+    "Transmission": 2062,
+    "Electrical": 2044,
+    "Brake": 2004,
+    "Hydraulic": 1965,
+    "Engine": 1924
+  },
+  "failure_mode_rate_pct": {
+    "Brake": 26.55,
+    "Electrical": 23.73,
+    "Engine": 24.74,
+    "Hydraulic": 23.36,
+    "Transmission": 24.64
+  },
+  "model": {
+    "model_name": "CatBoost v20260730160737",
+    "algorithm": "CatBoost",
+    "native_importance_ranked": [
+      {
+        "feature": "DayOfWeek_Sin",
+        "importance": 12.84872
+      },
+      {
+        "feature": "Month_Sin",
+        "importance": 9.95833
+      },
+      {
+        "feature": "Month_Cos",
+        "importance": 8.79098
+      },
+      {
+        "feature": "FailureMode_FreqEncoding",
+        "importance": 6.1265
+      },
+      {
+        "feature": "DayOfWeek_Cos",
+        "importance": 5.53187
+      },
+      {
+        "feature": "Hour_Sin",
+        "importance": 5.39094
+      },
+      {
+        "feature": "Hour_Cos",
+        "importance": 5.02235
+      },
+      {
+        "feature": "DaysSinceLastReading",
+        "importance": 2.14672
+      },
+      {
+        "feature": "HydraulicPressure_RollMean7",
+        "importance": 2.07228
+      },
+      {
+        "feature": "EngineTemp_RollStd3",
+        "importance": 1.8308
+      },
+      {
+        "feature": "HydraulicPressure_RollStd3",
+        "importance": 1.76251
+      },
+      {
+        "feature": "EngineTemp_RollMean7",
+        "importance": 1.76172
+      },
+      {
+        "feature": "EngineTemp_Lag1",
+        "importance": 1.71517
+      },
+      {
+        "feature": "HydraulicPressure_RollMean3",
+        "importance": 1.6822
+      },
+      {
+        "feature": "Vibration_RollMean7",
+        "importance": 1.65714
+      },
+      {
+        "feature": "Vibration_RollStd3",
+        "importance": 1.6471
+      },
+      {
+        "feature": "Vibration_RollMean3",
+        "importance": 1.60986
+      },
+      {
+        "feature": "Vibration_Lag1",
+        "importance": 1.60232
+      },
+      {
+        "feature": "EngineTemp_RollMean3",
+        "importance": 1.56191
+      },
+      {
+        "feature": "HydraulicPressure_TrendSlope",
+        "importance": 1.44407
+      }
+    ],
+    "shap_importance_ranked": [
+      {
+        "feature": "Month_Sin",
+        "mean_abs_shap": 0.71182
+      },
+      {
+        "feature": "DayOfWeek_Sin",
+        "mean_abs_shap": 0.68377
+      },
+      {
+        "feature": "Month_Cos",
+        "mean_abs_shap": 0.62844
+      },
+      {
+        "feature": "Hour_Cos",
+        "mean_abs_shap": 0.52941
+      },
+      {
+        "feature": "DayOfWeek_Cos",
+        "mean_abs_shap": 0.51935
+      },
+      {
+        "feature": "Hour_Sin",
+        "mean_abs_shap": 0.4662
+      },
+      {
+        "feature": "FailureMode_FreqEncoding",
+        "mean_abs_shap": 0.37131
+      },
+      {
+        "feature": "EquipmentType_Grader",
+        "mean_abs_shap": 0.22272
+      },
+      {
+        "feature": "HydraulicPressure_RollMean7",
+        "mean_abs_shap": 0.18991
+      },
+      {
+        "feature": "DaysSinceLastReading",
+        "mean_abs_shap": 0.18032
+      },
+      {
+        "feature": "TemperatureRiskScore",
+        "mean_abs_shap": 0.17799
+      },
+      {
+        "feature": "EquipmentType_Loader",
+        "mean_abs_shap": 0.17171
+      },
+      {
+        "feature": "EquipmentType_Dozer",
+        "mean_abs_shap": 0.16625
+      },
+      {
+        "feature": "EquipmentType_Drill",
+        "mean_abs_shap": 0.15958
+      },
+      {
+        "feature": "EquipmentType_Excavator",
+        "mean_abs_shap": 0.14519
+      },
+      {
+        "feature": "Vibration_RollStd3",
+        "mean_abs_shap": 0.14416
+      },
+      {
+        "feature": "EquipmentType_Truck",
+        "mean_abs_shap": 0.13728
+      },
+      {
+        "feature": "EngineTemp_RollMean7",
+        "mean_abs_shap": 0.13631
+      },
+      {
+        "feature": "Vibration_RollMean7",
+        "mean_abs_shap": 0.13378
+      },
+      {
+        "feature": "EngineTemp_RollStd3",
+        "mean_abs_shap": 0.12804
+      }
+    ],
+    "shap_top_feature": "Month_Sin"
+  }
+}

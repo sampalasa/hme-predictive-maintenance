@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Prédiction par lot — HME Predictive Maintenance{% endblock %}
+{% block page_title %}Prédiction IA — Import par lot (CSV){% endblock %}
+
+{% block content %}
+<div class="glass-card mb-3">
+    <p class="text-muted">
+        Colonnes attendues : <code>EquipmentID, EquipmentType, Timestamp, OperatingHours, EngineTemp,
+        HydraulicPressure, Vibration, FailureMode</code>
+    </p>
+    <form method="POST" enctype="multipart/form-data" class="d-flex gap-2">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="file" name="csv_file" accept=".csv" class="form-control" required>
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-upload"></i> Lancer</button>
+    </form>
+</div>
+
+{% if results is not none %}
+<div class="glass-card table-card">
+    <h6><i class="fa-solid fa-list"></i> Résultats ({{ results|length }} ligne(s))</h6>
+    <div class="table-responsive">
+        <table class="table table-sm">
+            <thead><tr><th>Équipement</th><th>Risque</th><th>Probabilité</th></tr></thead>
+            <tbody>
+                {% for r in results %}
+                <tr>
+                    <td>{{ r.equipment_id }}</td>
+                    <td><span class="risk-badge risk-{{ r.risk_level }}">{{ r.risk_level }}</span></td>
+                    <td>{{ (r.probability * 100) | round(1) }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

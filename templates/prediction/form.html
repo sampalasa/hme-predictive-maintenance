@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Prédiction individuelle — HME Predictive Maintenance{% endblock %}
+{% block page_title %}Prédiction IA — Analyse individuelle{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="glass-card">
+            <h6><i class="fa-solid fa-brain"></i> Paramètres de la lecture</h6>
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="mb-2">
+                    <label class="form-label">Équipement</label>
+                    <input list="equipmentCodes" name="equipment_id" class="form-control" value="{{ prefill_code }}" placeholder="ex: EQ-057" required>
+                    <datalist id="equipmentCodes">
+                        {% for eq in equipment_list %}
+                        <option value="{{ eq.equipment_code }}">{{ eq.equipment_type }}</option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Type d'équipement</label>
+                    <select name="equipment_type" class="form-select" required>
+                        {% for t in equipment_types %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Heures de fonctionnement</label>
+                    <input type="number" name="operating_hours" class="form-control" value="10000" required>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Température moteur (°C)</label>
+                    <input type="number" step="0.1" name="engine_temp" class="form-control" value="90" required>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Pression hydraulique (bar)</label>
+                    <input type="number" step="0.1" name="hydraulic_pressure" class="form-control" value="260" required>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Vibration (mm/s)</label>
+                    <input type="number" step="0.01" name="vibration" class="form-control" value="4" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mode de panne observé</label>
+                    <select name="failure_mode" class="form-select">
+                        {% for m in failure_modes %}<option value="{{ m }}">{{ m }}</option>{% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-bolt"></i> Prédire</button>
+            </form>
+        </div>
+        <div class="glass-card mt-3">
+            <a href="{{ url_for('prediction_web.batch_form') }}" class="btn btn-outline-secondary w-100">
+                <i class="fa-solid fa-file-csv"></i> Prédiction par lot (import CSV)
+            </a>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        {% if result %}
+        <div class="glass-card animate__animated animate__fadeIn">
+            <h6><i class="fa-solid fa-circle-check"></i> Résultat de la prédiction</h6>
+            <div class="d-flex align-items-center gap-4 mb-3">
+                <div>
+                    <div class="kpi-value">{{ (result.probability * 100) | round(1) }}%</div>
+                    <div class="kpi-label">Probabilité de panne (7 jours)</div>
+                </div>
+                <span class="risk-badge risk-{{ result.risk_level }}" style="font-size:1rem;">{{ result.risk_level }}</span>
+            </div>
+            <p class="text-muted mb-1">Équipement : <strong>{{ result.equipment_id }}</strong></p>
+            <p class="text-muted mb-3">Modèle utilisé : {{ result.model_version }}</p>
+            <a href="{{ url_for('explainability.equipment_explanation', equipment_code=result.equipment_id) }}" class="btn btn-outline-info btn-sm">
+                <i class="fa-solid fa-magnifying-glass-chart"></i> Pourquoi cette prédiction ?
+            </a>
+        </div>
+        {% else %}
+        <div class="glass-card text-center text-muted py-5">
+            <i class="fa-solid fa-arrow-left fa-2x mb-2"></i>
+            <p>Renseignez les paramètres d'une lecture pour obtenir une prédiction de panne.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

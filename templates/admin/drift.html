@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Data Drift — HME Predictive Maintenance{% endblock %}
+{% block page_title %}Détection de dérive des données (Data Drift){% endblock %}
+
+{% block content %}
+<div class="glass-card mb-3">
+    <p class="mb-2">
+        Compare la distribution des capteurs entre une fenêtre de référence (les {{ report.reference_size }}
+        premières lectures) et la fenêtre récente ({{ report.current_size }} dernières lectures),
+        via l'indice PSI (Population Stability Index) et un test de Kolmogorov-Smirnov.
+    </p>
+    <span class="badge {{ 'bg-danger' if report.status == 'drift_detected' else 'bg-success' }} fs-6">
+        {{ 'Dérive détectée' if report.status == 'drift_detected' else 'Distribution stable' }}
+    </span>
+    <p class="text-muted small mt-2 mb-0">
+        Réentraînement automatique déclenchable via : <code>python -m app.ml.training.auto_retrain</code>
+        (à planifier via le Planificateur de tâches Windows / cron — voir docs/08_mlops.md).
+    </p>
+</div>
+
+<div class="glass-card table-card">
+    <table class="table table-sm">
+        <thead><tr><th>Variable</th><th>PSI</th><th>Sévérité</th><th>KS statistic</th><th>KS p-value</th><th>Dérive ?</th></tr></thead>
+        <tbody>
+            {% for f in report.features %}
+            <tr>
+                <td>{{ f.feature }}</td>
+                <td>{{ f.psi }}</td>
+                <td><span class="badge {{ 'bg-danger' if f.severity == 'high' else 'bg-warning' if f.severity == 'moderate' else 'bg-success' }}">{{ f.severity }}</span></td>
+                <td>{{ f.ks_statistic }}</td>
+                <td>{{ f.ks_pvalue }}</td>
+                <td>{{ '⚠️ Oui' if f.drift_detected else 'Non' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

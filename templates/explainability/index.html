@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Explicabilité IA — HME Predictive Maintenance{% endblock %}
+{% block page_title %}Explicabilité du modèle (SHAP){% endblock %}
+
+{% block content %}
+{% if global_explanation %}
+<div class="row g-3 mb-3">
+    <div class="col-lg-7">
+        <div class="glass-card chart-card">
+            <h6><i class="fa-solid fa-chart-bar"></i> Importance globale des variables (SHAP)</h6>
+            <p class="text-muted small">Calculée sur un échantillon de {{ global_explanation.sample_size }} lectures de la flotte.</p>
+            <canvas id="chartGlobalShap" height="320"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="glass-card">
+            <h6><i class="fa-solid fa-magnifying-glass"></i> Explication par équipement</h6>
+            <p class="text-muted small">Sélectionnez un équipement pour voir pourquoi le modèle estime son niveau de risque.</p>
+            <select class="form-select mb-2" onchange="if(this.value) window.location='{{ url_for('explainability.index') }}/equipment/' + this.value" required>
+                <option value="" disabled selected>Choisir un équipement…</option>
+                {% for eq in equipment_list %}
+                <option value="{{ eq.equipment_code }}">{{ eq.equipment_code }} ({{ eq.equipment_type }})</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="glass-card text-center text-muted py-5">
+    <i class="fa-solid fa-triangle-exclamation fa-2x mb-2"></i>
+    <p>Aucun modèle actif. Entraînez le modèle pour activer l'explicabilité.</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+{% if global_explanation %}
+<script>
+    const importanceData = {{ global_explanation.feature_importance | tojson }};
+    new Chart(document.getElementById('chartGlobalShap'), {
+        type: 'bar',
+        data: {
+            labels: importanceData.map(d => d.feature),
+            datasets: [{ label: '|SHAP| moyen', data: importanceData.map(d => d.importance), backgroundColor: '#2563eb' }]
+        },
+        options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+    });
+</script>
+{% endif %}
+{% endblock %}

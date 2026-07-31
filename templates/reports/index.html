@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Rapports — HME Predictive Maintenance{% endblock %}
+{% block page_title %}Rapports & exports{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <div class="col-md-6 col-lg-3">
+        <div class="glass-card text-center">
+            <i class="fa-solid fa-file-csv fa-2x mb-2 text-success"></i>
+            <h6>Équipements (CSV)</h6>
+            <a href="{{ url_for('reports.download_equipment_csv') }}" class="btn btn-outline-success btn-sm w-100">Télécharger</a>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="glass-card text-center">
+            <i class="fa-solid fa-file-excel fa-2x mb-2 text-success"></i>
+            <h6>Prédictions (Excel)</h6>
+            <a href="{{ url_for('reports.download_predictions_excel') }}" class="btn btn-outline-success btn-sm w-100">Télécharger</a>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="glass-card text-center">
+            <i class="fa-solid fa-file-csv fa-2x mb-2 text-primary"></i>
+            <h6>Maintenance (CSV)</h6>
+            <a href="{{ url_for('reports.download_maintenance_csv') }}" class="btn btn-outline-primary btn-sm w-100">Télécharger</a>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="glass-card text-center">
+            <i class="fa-solid fa-file-pdf fa-2x mb-2 text-danger"></i>
+            <h6>Synthèse flotte (PDF)</h6>
+            <a href="{{ url_for('reports.download_fleet_summary_pdf') }}" class="btn btn-outline-danger btn-sm w-100">Télécharger</a>
+        </div>
+    </div>
+</div>
+
+<h6 class="mt-4 mb-3"><i class="fa-solid fa-graduation-cap"></i> Documentation scientifique (livrables académiques)</h6>
+<div class="glass-card table-card">
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <thead><tr><th>Document</th><th>PDF</th><th>Word</th><th>HTML</th></tr></thead>
+            <tbody>
+                {% for name in doc_names %}
+                <tr>
+                    <td>{{ name.replace('_', ' ') }}</td>
+                    <td><a href="{{ url_for('reports.download_documentation', filename=name + '.pdf') }}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-file-pdf"></i></a></td>
+                    <td><a href="{{ url_for('reports.download_documentation', filename=name + '.docx') }}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-file-word"></i></a></td>
+                    <td><a href="{{ url_for('reports.download_documentation', filename=name + '.html') }}" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-file-code"></i></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="small text-muted mb-0">Régénérer ces documents : <code>python scripts/export_documentation.py</code></p>
+</div>
+{% endblock %}

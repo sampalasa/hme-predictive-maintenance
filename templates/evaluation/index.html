@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Évaluation du modèle — HME Predictive Maintenance{% endblock %}
+{% block page_title %}Évaluation avancée du modèle actif{% endblock %}
+
+{% block content %}
+{% if report %}
+<p class="text-muted mb-3">Modèle évalué : <strong>{{ report.model_name }}</strong></p>
+
+<div class="row g-2 mb-3">
+    {% for key, label in [('accuracy','Accuracy'), ('precision','Precision'), ('recall','Recall'), ('f1','F1'), ('roc_auc','ROC AUC'), ('balanced_accuracy','Bal. Accuracy'), ('mcc','MCC'), ('log_loss','Log Loss'), ('cohen_kappa','Cohen Kappa')] %}
+    <div class="col-6 col-md-3 col-lg-auto">
+        <div class="glass-card text-center py-2 px-3">
+            <div class="kpi-value" style="font-size:1.2rem;">{{ report.metrics[key] }}</div>
+            <div class="kpi-label">{{ label }}</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-4"><div class="glass-card chart-card"><div id="fig-cm"></div></div></div>
+    <div class="col-lg-4"><div class="glass-card chart-card"><div id="fig-roc"></div></div></div>
+    <div class="col-lg-4"><div class="glass-card chart-card"><div id="fig-pr"></div></div></div>
+    <div class="col-lg-4"><div class="glass-card chart-card"><div id="fig-calibration"></div></div></div>
+    <div class="col-lg-4"><div class="glass-card chart-card"><div id="fig-lift"></div></div></div>
+    <div class="col-lg-4"><div class="glass-card chart-card"><div id="fig-gain"></div></div></div>
+    <div class="col-12"><div class="glass-card chart-card"><div id="fig-learning"></div></div></div>
+</div>
+{% else %}
+<div class="glass-card text-center text-muted py-5">
+    <i class="fa-solid fa-triangle-exclamation fa-2x mb-2"></i>
+    <p>Aucun modèle actif à évaluer.</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+{% if report %}
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script>
+    const report = {{ report | tojson }};
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const layoutBase = { template: isDark ? 'plotly_dark' : 'plotly_white', paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)', margin: {t: 40} };
+
+    Plotly.newPlot('fig-cm', [{
+        z: report.confusion_matrix, x: ['Prédit 0', 'Prédit 1'], y: ['Réel 0', 'Réel 1'],
+        type: 'heatmap', colorscale: 'Blues', texttemplate: '%{z}',
+    }], {...layoutBase, title: 'Matrice de confusion'});
+
+    Plotly.newPlot('fig-roc', [
+        { x: report.roc_curve.fpr, y: report.roc_curve.tpr, mode: 'lines', name: 'ROC', line: {color: '#2563eb'} },
+        { x: [0,1], y: [0,1], mode: 'lines', name: 'Hasard', line: {dash: 'dash', color: '#999'} },
+    ], {...layoutBase, title: `ROC Curve (AUC=${report.metrics.roc_auc})`, xaxis: {title: 'FPR'}, yaxis: {title: 'TPR'}});
+
+    Plotly.newPlot('fig-pr', [
+        { x: report.pr_curve.recall, y: report.pr_curve.precision, mode: 'lines', line: {color: '#7c3aed'} },
+    ], {...layoutBase, title: 'Precision-Recall Curve', xaxis: {title: 'Recall'}, yaxis: {title: 'Precision'}});
+
+    Plotly.newPlot('fig-calibration', [
+        { x: report.calibration_curve.prob_pred, y: report.calibration_curve.prob_true, mode: 'lines+markers', line: {color: '#16a34a'} },
+        { x: [0,1], y: [0,1], mode: 'lines', line: {dash: 'dash', color: '#999'} },
+    ], {...layoutBase, title: 'Calibration Curve', xaxis: {title: 'Probabilité prédite'}, yaxis: {title: 'Fréquence observée'}});
+
+    Plotly.newPlot('fig-lift', [
+        { x: report.lift_gain.population_pct, y: report.lift_gain.lift, mode: 'lines+markers', line: {color: '#ea580c'} },
+    ], {...layoutBase, title: 'Lift Curve', xaxis: {title: '% population ciblée'}, yaxis: {title: 'Lift'}});
+
+    Plotly.newPlot('fig-gain', [
+        { x: report.lift_gain.population_pct, y: report.lift_gain.gain_pct, mode: 'lines+markers', line: {color: '#0d9488'} },
+        { x: [0,100], y: [0,100], mode: 'lines', line: {dash: 'dash', color: '#999'} },
+    ], {...layoutBase, title: 'Gain Curve (cumulatif)', xaxis: {title: '% population ciblée'}, yaxis: {title: '% positifs capturés'}});
+
+    Plotly.newPlot('fig-learning', [
+        { x: report.learning_curve.train_sizes, y: report.learning_curve.train_scores_mean, mode: 'lines+markers', name: 'Train', line: {color: '#2563eb'} },
+        { x: report.learning_curve.train_sizes, y: report.learning_curve.test_scores_mean, mode: 'lines+markers', name: 'Validation', line: {color: '#dc2626'} },
+    ], {...layoutBase, title: 'Learning Curve (F1)', xaxis: {title: "Taille de l'échantillon d'entraînement"}, yaxis: {title: 'Score F1'}});
+</script>
+{% endif %}
+{% endblock %}

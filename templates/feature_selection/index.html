@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Sélection de variables — HME Predictive Maintenance{% endblock %}
+{% block page_title %}Comparaison des méthodes de sélection de variables{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-3">
+    <div class="col-lg-4">
+        <div class="glass-card table-card">
+            <h6><i class="fa-solid fa-diagram-project"></i> Mutual Information</h6>
+            <table class="table table-sm"><tbody>
+                {% for f in comparison.mutual_information[:10] %}
+                <tr><td>{{ f.feature }}</td><td class="text-end">{{ f.score }}</td></tr>
+                {% endfor %}
+            </tbody></table>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="glass-card table-card">
+            <h6><i class="fa-solid fa-arrows-rotate"></i> RFE (Random Forest)</h6>
+            <table class="table table-sm"><tbody>
+                {% for f in comparison.rfe[:10] %}
+                <tr><td>{{ f.feature }}</td><td class="text-end">{{ f.score }}</td></tr>
+                {% endfor %}
+            </tbody></table>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="glass-card table-card">
+            <h6><i class="fa-solid fa-shuffle"></i> Permutation Importance</h6>
+            <table class="table table-sm"><tbody>
+                {% for f in comparison.permutation_importance[:10] %}
+                <tr><td>{{ f.feature }}</td><td class="text-end">{{ f.score }}</td></tr>
+                {% endfor %}
+            </tbody></table>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-lg-6">
+        <div class="glass-card table-card">
+            <h6><i class="fa-solid fa-magnifying-glass-chart"></i> SHAP Importance</h6>
+            {% if comparison.shap %}
+            <table class="table table-sm"><tbody>
+                {% for f in comparison.shap[:10] %}
+                <tr><td>{{ f.feature }}</td><td class="text-end">{{ f.importance }}</td></tr>
+                {% endfor %}
+            </tbody></table>
+            {% else %}
+            <p class="text-muted">Aucun modèle actif — entraînez le modèle pour activer SHAP.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="glass-card">
+            <h6><i class="fa-solid fa-ruler"></i> Variance Threshold (seuil={{ comparison.variance_threshold.threshold }})</h6>
+            <p class="small text-muted mb-1">Conservées : {{ comparison.variance_threshold.retained|length }} / Rejetées : {{ comparison.variance_threshold.removed|length }}</p>
+            {% if comparison.variance_threshold.removed %}
+            <p class="small"><strong>Rejetées :</strong> {{ comparison.variance_threshold.removed|join(', ') }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="glass-card">
+    <h6><i class="fa-solid fa-check-double"></i> Boruta (confirmées / tentatives / rejetées)</h6>
+    <div class="row">
+        <div class="col-md-4">
+            <p class="small text-success"><strong>Confirmées ({{ comparison.boruta.confirmed|length }})</strong></p>
+            <p class="small">{{ comparison.boruta.confirmed|join(', ') }}</p>
+        </div>
+        <div class="col-md-4">
+            <p class="small text-warning"><strong>Tentatives ({{ comparison.boruta.tentative|length }})</strong></p>
+            <p class="small">{{ comparison.boruta.tentative|join(', ') or '—' }}</p>
+        </div>
+        <div class="col-md-4">
+            <p class="small text-danger"><strong>Rejetées ({{ comparison.boruta.rejected|length }})</strong></p>
+            <p class="small">{{ comparison.boruta.rejected|join(', ') }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

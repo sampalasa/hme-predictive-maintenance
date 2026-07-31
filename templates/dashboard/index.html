@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — HME Predictive Maintenance{% endblock %}
+{% block page_title %}Vue d'ensemble de la flotte{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+{% endblock %}
+
+{% block content %}
+<div id="kpi-row" class="row g-3 mb-4">
+    {% set kpis = [
+        ("total_equipment", "Équipements", "fa-truck-front", "kpi-blue", ""),
+        ("total_failures", "Pannes détectées", "fa-triangle-exclamation", "kpi-red", ""),
+        ("availability_pct", "Disponibilité", "fa-battery-three-quarters", "kpi-green", "%"),
+        ("mtbf_hours", "MTBF", "fa-hourglass-half", "kpi-purple", " h"),
+        ("mttr_hours", "MTTR", "fa-screwdriver-wrench", "kpi-orange", " h"),
+        ("predictions_today", "Prédictions (jour)", "fa-brain", "kpi-teal", ""),
+        ("critical_equipment", "Équip. critiques", "fa-fire", "kpi-dark-red", ""),
+    ] %}
+    {% for key, label, icon, klass, suffix in kpis %}
+    <div class="col-6 col-lg-3 col-xl">
+        <div class="glass-card kpi-card {{ klass }} animate__animated animate__fadeInUp">
+            <div class="kpi-icon"><i class="fa-solid {{ icon }}"></i></div>
+            <div class="kpi-value" data-kpi="{{ key }}" data-suffix="{{ suffix }}">—</div>
+            <div class="kpi-label">{{ label }}</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-4">
+        <div class="glass-card chart-card">
+            <h6><i class="fa-solid fa-gauge"></i> Disponibilité de la flotte</h6>
+            <div id="gaugeAvailability"></div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="glass-card chart-card">
+            <h6><i class="fa-solid fa-chart-pie"></i> Pannes par type d'équipement</h6>
+            <canvas id="chartFailuresByType" height="230"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="glass-card chart-card">
+            <h6><i class="fa-solid fa-ranking-star"></i> Top équipements critiques</h6>
+            <canvas id="chartTopCritical" height="230"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="glass-card chart-card">
+            <h6><i class="fa-solid fa-chart-line"></i> Évolution mensuelle des pannes</h6>
+            <div id="chartMonthlyEvolution"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="glass-card table-card">
+            <h6><i class="fa-solid fa-brain"></i> Dernières prédictions</h6>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead><tr><th>Équipement</th><th>Risque</th><th>Probabilité</th><th>Date</th></tr></thead>
+                    <tbody id="tblRecentPredictions">
+                        <tr><td colspan="4" class="text-muted text-center py-3">Chargement…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="glass-card table-card">
+            <h6><i class="fa-solid fa-screwdriver-wrench"></i> Dernières maintenances</h6>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead><tr><th>Équipement</th><th>Type</th><th>Durée (h)</th><th>Technicien</th></tr></thead>
+                    <tbody id="tblRecentMaintenance">
+                        <tr><td colspan="4" class="text-muted text-center py-3">Chargement…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.51.0/dist/apexcharts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

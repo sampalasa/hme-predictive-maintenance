@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Paramètres{% endblock %}
+{% block page_title %}Paramètres système{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="glass-card table-card">
+            <table class="table table-sm">
+                <thead><tr><th>Clé</th><th>Valeur</th><th>Mis à jour</th></tr></thead>
+                <tbody>
+                    {% for s in settings %}
+                    <tr><td>{{ s.key }}</td><td>{{ s.value }}</td><td>{{ s.updated_at.strftime('%Y-%m-%d') }}</td></tr>
+                    {% else %}
+                    <tr><td colspan="3" class="text-center text-muted py-3">Aucun paramètre personnalisé</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="glass-card">
+            <h6>Ajouter / modifier un paramètre</h6>
+            <form method="POST" action="{{ url_for('admin.update_setting') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="text" name="key" class="form-control mb-2" placeholder="Clé (ex: alert_email)" required>
+                <input type="text" name="value" class="form-control mb-2" placeholder="Valeur" required>
+                <button type="submit" class="btn btn-primary w-100">Enregistrer</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Historique d'entraînement{% endblock %}
+{% block page_title %}Historique des entraînements{% endblock %}
+
+{% block content %}
+<div class="glass-card table-card">
+    <div class="table-responsive">
+        <table class="table table-sm">
+            <thead><tr><th>Démarré le</th><th>Terminé le</th><th>Statut</th><th>Notes</th></tr></thead>
+            <tbody>
+                {% for run in runs %}
+                <tr>
+                    <td>{{ run.started_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ run.completed_at.strftime('%Y-%m-%d %H:%M') if run.completed_at else '—' }}</td>
+                    <td><span class="badge {{ 'bg-success' if run.status == 'completed' else 'bg-warning' }}">{{ run.status }}</span></td>
+                    <td class="small">{{ run.notes or '—' }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" class="text-center text-muted py-3">Aucun entraînement enregistré</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Explication — {{ explanation.equipment_code }}{% endblock %}
+{% block page_title %}Pourquoi {{ explanation.equipment_code }} risque de tomber en panne{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="glass-card">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="kpi-value">{{ (explanation.probability * 100) | round(1) }}%</div>
+                <span class="risk-badge risk-{{ 'Critical' if explanation.probability >= 0.85 else 'High' if explanation.probability >= 0.6 else 'Medium' if explanation.probability >= 0.3 else 'Low' }}">
+                    Probabilité de panne
+                </span>
+            </div>
+            <p>{{ explanation.narrative }}</p>
+            <a href="{{ url_for('equipment.detail', equipment_code=explanation.equipment_code) }}" class="btn btn-outline-primary btn-sm">
+                <i class="fa-solid fa-arrow-left"></i> Retour à la fiche équipement
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="glass-card chart-card">
+            <h6><i class="fa-solid fa-water"></i> Contribution de chaque variable (SHAP local)</h6>
+            <canvas id="chartWaterfall" height="320"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+    const contributions = {{ explanation.contributions | tojson }};
+    new Chart(document.getElementById('chartWaterfall'), {
+        type: 'bar',
+        data: {
+            labels: contributions.map(c => `${c.feature} (=${c.feature_value})`),
+            datasets: [{
+                label: 'Impact SHAP',
+                data: contributions.map(c => c.shap_value),
+                backgroundColor: contributions.map(c => c.shap_value >= 0 ? '#dc2626' : '#16a34a'),
+            }]
+        },
+        options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Équipements — HME Predictive Maintenance{% endblock %}
+{% block page_title %}Gestion des équipements{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+        <a href="{{ url_for('equipment.at_risk') }}" class="btn btn-danger btn-sm">
+            <i class="fa-solid fa-triangle-exclamation"></i> Voir les équipements à risque
+        </a>
+    </div>
+    {% if current_user.role.name in ['Admin', 'Ingenieur'] %}
+    <a href="{{ url_for('equipment.new_equipment_form') }}" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-plus"></i> Nouvel équipement
+    </a>
+    {% endif %}
+</div>
+
+<div class="glass-card table-card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Code</th><th>Type</th><th>Statut</th><th>Dernière lecture</th>
+                    <th>Heures de fonctionnement</th><th>Risque</th><th>Probabilité</th><th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for eq in equipment_list %}
+                <tr>
+                    <td><strong>{{ eq.equipment_code }}</strong></td>
+                    <td>{{ eq.equipment_type }}</td>
+                    <td><span class="badge bg-secondary">{{ eq.status }}</span></td>
+                    <td>{{ eq.last_reading_at[:10] if eq.last_reading_at else '—' }}</td>
+                    <td>{{ eq.last_operating_hours or '—' }}</td>
+                    <td>
+                        {% if eq.risk_level %}
+                        <span class="risk-badge risk-{{ eq.risk_level }}">{{ eq.risk_level }}</span>
+                        {% else %}
+                        <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ (eq.probability * 100) | round(1) if eq.probability is not none else '—' }}{% if eq.probability is not none %}%{% endif %}</td>
+                    <td><a href="{{ url_for('equipment.detail', equipment_code=eq.equipment_code) }}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-eye"></i></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

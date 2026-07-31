@@ -1,0 +1,93 @@
+@startuml
+left to right direction
+skinparam packageStyle rect
+skinparam actorStyle awesome
+
+actor Admin
+actor "Ingénieur" as Ingenieur
+actor Technicien
+actor Manager
+actor "Utilisateur authentifié" as AuthUser << abstract >>
+actor "Data Scientist (CLI)" as DataScientist
+actor "Système externe / Intégration" as ExternalSystem
+
+Admin --|> AuthUser
+Ingenieur --|> AuthUser
+Technicien --|> AuthUser
+Manager --|> AuthUser
+
+rectangle "Système de Maintenance Prédictive HME (Web + API)" {
+  usecase "Se connecter" as UC1
+  usecase "Se déconnecter" as UC2
+  usecase "Consulter le tableau de bord (KPIs)" as UC3
+  usecase "Consulter la liste des équipements" as UC4
+  usecase "Consulter la fiche équipement" as UC5
+  usecase "Lancer une prédiction individuelle" as UC6
+  usecase "Lancer une prédiction par lot (CSV)" as UC7
+  usecase "Consulter les équipements à risque" as UC8
+  usecase "Consulter l'explicabilité (SHAP)" as UC9
+  usecase "Consulter l'analyse exploratoire (EDA)" as UC10
+  usecase "Consulter la sélection de variables" as UC11
+  usecase "Consulter l'évaluation du modèle" as UC12
+  usecase "Exporter un rapport / la documentation" as UC13
+  usecase "Recevoir une notification critique" as UC14
+
+  usecase "Enregistrer une maintenance" as UC15
+  usecase "Créer un équipement" as UC16
+  usecase "Modifier un équipement" as UC17
+  usecase "Lancer la prédiction sur toute la flotte" as UC18
+  usecase "Supprimer un équipement" as UC19
+  usecase "Gérer les utilisateurs" as UC20
+  usecase "Consulter le journal d'audit" as UC21
+  usecase "Gérer les paramètres système" as UC22
+  usecase "Consulter l'historique d'entraînement" as UC23
+  usecase "Consulter la dérive des données (Data Drift)" as UC24
+
+  usecase "Entraîner le modèle (AutoML + Optuna)" as UC25
+  usecase "Réentraîner automatiquement (drift)" as UC26
+
+  usecase "S'authentifier via API (JWT)" as UC27
+  usecase "Prédire via API REST" as UC28
+  usecase "Gérer les équipements via API (CRUD)" as UC29
+}
+
+AuthUser --> UC1
+AuthUser --> UC2
+AuthUser --> UC3
+AuthUser --> UC4
+AuthUser --> UC5
+AuthUser --> UC6
+AuthUser --> UC7
+AuthUser --> UC8
+AuthUser --> UC9
+AuthUser --> UC10
+AuthUser --> UC11
+AuthUser --> UC12
+AuthUser --> UC13
+AuthUser --> UC14
+
+Ingenieur --> UC15
+Technicien --> UC15
+Admin --> UC15
+
+Ingenieur --> UC16
+Admin --> UC16
+Ingenieur --> UC17
+Admin --> UC17
+Ingenieur --> UC18
+Admin --> UC18
+
+Admin --> UC19
+Admin --> UC20
+Admin --> UC21
+Admin --> UC22
+Admin --> UC23
+Admin --> UC24
+
+DataScientist --> UC25
+DataScientist --> UC26
+
+ExternalSystem --> UC27
+ExternalSystem --> UC28
+ExternalSystem --> UC29
+@enduml

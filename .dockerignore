@@ -1,0 +1,11 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.git/
+instance/*.db
+app/ml/artifacts/*.joblib
+app/ml/artifacts/*.json
+logs/*.log
+.env

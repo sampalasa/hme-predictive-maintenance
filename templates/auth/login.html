@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Connexion — HME Predictive Maintenance{% endblock %}
+
+{% block guest_content %}
+<div class="login-page">
+    <div class="login-card animate__animated animate__fadeInUp">
+        <div class="login-brand">
+            <i class="fa-solid fa-truck-monster"></i>
+            <h1>HME <strong>Predict</strong></h1>
+            <p>Intelligent Heavy Mobile Equipment<br>Predictive Maintenance System</p>
+        </div>
+
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                <label class="form-label">{{ form.username.label }}</label>
+                {{ form.username(class_="form-control", placeholder="ex: admin") }}
+                {% for error in form.username.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">{{ form.password.label }}</label>
+                {{ form.password(class_="form-control", placeholder="••••••••") }}
+                {% for error in form.password.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="form-check mb-3">
+                {{ form.remember_me(class_="form-check-input") }}
+                <label class="form-check-label">{{ form.remember_me.label }}</label>
+            </div>
+
+            {{ form.submit(class_="btn btn-primary w-100") }}
+        </form>
+
+        <div class="login-demo-accounts">
+            <p class="mb-1"><i class="fa-solid fa-circle-info"></i> Comptes de démonstration :</p>
+            <ul>
+                <li><code>admin</code> / <code>Admin@123</code> — Administrateur</li>
+                <li><code>ingenieur</code> / <code>Ingenieur@123</code> — Ingénieur</li>
+                <li><code>technicien</code> / <code>Technicien@123</code> — Technicien</li>
+                <li><code>manager</code> / <code>Manager@123</code> — Manager</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

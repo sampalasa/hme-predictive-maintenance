@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Analyse Exploratoire (EDA) — HME Predictive Maintenance{% endblock %}
+{% block page_title %}Analyse Exploratoire des Données (EDA){% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-3">
+    <div class="col-md-3"><div class="glass-card text-center"><div class="kpi-value">{{ overview.n_rows }}</div><div class="kpi-label">Lignes</div></div></div>
+    <div class="col-md-3"><div class="glass-card text-center"><div class="kpi-value">{{ overview.n_columns }}</div><div class="kpi-label">Colonnes</div></div></div>
+    <div class="col-md-3"><div class="glass-card text-center"><div class="kpi-value">{{ overview.duplicate_rows }}</div><div class="kpi-label">Doublons</div></div></div>
+    <div class="col-md-3"><div class="glass-card text-center"><div class="kpi-value">{{ overview.target_rate_pct }}%</div><div class="kpi-label">Taux de panne (cible)</div></div></div>
+</div>
+
+<div class="glass-card table-card mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0"><i class="fa-solid fa-table"></i> Colonnes & valeurs manquantes</h6>
+        <a href="{{ url_for('eda.export_pdf') }}" class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-file-pdf"></i> Exporter en PDF</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-sm">
+            <thead><tr><th>Colonne</th><th>Type</th><th>Manquants</th><th>% manquant</th></tr></thead>
+            <tbody>
+                {% for col in overview.columns %}
+                <tr><td>{{ col.name }}</td><td>{{ col.dtype }}</td><td>{{ col.missing }}</td><td>{{ col.missing_pct }}%</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="glass-card table-card mb-3">
+    <h6><i class="fa-solid fa-calculator"></i> Statistiques descriptives (variables numériques)</h6>
+    <div class="table-responsive">
+        <table class="table table-sm">
+            <thead><tr><th>Variable</th><th>Moyenne</th><th>Écart-type</th><th>Min</th><th>25%</th><th>50%</th><th>75%</th><th>Max</th><th>Asymétrie</th></tr></thead>
+            <tbody>
+                {% for s in numeric_summary %}
+                <tr>
+                    <td>{{ s.variable }}</td><td>{{ s.mean }}</td><td>{{ s.std }}</td><td>{{ s.min }}</td>
+                    <td>{{ s['25%'] }}</td><td>{{ s['50%'] }}</td><td>{{ s['75%'] }}</td><td>{{ s.max }}</td><td>{{ s.skew }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6"><div class="glass-card chart-card"><div id="fig-target"></div></div></div>
+    <div class="col-lg-6"><div class="glass-card chart-card"><div id="fig-correlation"></div></div></div>
+    <div class="col-12"><div class="glass-card chart-card"><div id="fig-histograms"></div></div></div>
+    <div class="col-12"><div class="glass-card chart-card"><div id="fig-boxplots"></div></div></div>
+    <div class="col-lg-6"><div class="glass-card chart-card"><div id="fig-equipment"></div></div></div>
+    <div class="col-lg-6"><div class="glass-card chart-card"><div id="fig-failure-mode"></div></div></div>
+    <div class="col-12"><div class="glass-card chart-card"><div id="fig-temporal"></div></div></div>
+    <div class="col-12"><div class="glass-card chart-card"><div id="fig-pairplot"></div></div></div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script>
+    fetch("{{ url_for('eda.api_figures') }}")
+        .then(r => r.json())
+        .then(data => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const template = isDark ? 'plotly_dark' : 'plotly_white';
+            const map = {
+                'fig-target': 'target_distribution',
+                'fig-correlation': 'correlation',
+                'fig-histograms': 'histograms',
+                'fig-boxplots': 'boxplots',
+                'fig-equipment': 'equipment_type',
+                'fig-failure-mode': 'failure_mode',
+                'fig-temporal': 'temporal',
+                'fig-pairplot': 'pairplot',
+            };
+            Object.entries(map).forEach(([divId, key]) => {
+                const fig = JSON.parse(data[key]);
+                fig.layout.template = template;
+                fig.layout.paper_bgcolor = 'rgba(0,0,0,0)';
+                fig.layout.plot_bgcolor = 'rgba(0,0,0,0)';
+                Plotly.newPlot(divId, fig.data, fig.layout, {responsive: true});
+            });
+        });
+</script>
+{% endblock %}

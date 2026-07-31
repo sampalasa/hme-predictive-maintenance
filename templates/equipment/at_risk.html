@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Équipements à risque — HME Predictive Maintenance{% endblock %}
+{% block page_title %}Équipements susceptibles de tomber en panne{% endblock %}
+
+{% block content %}
+<div class="glass-card mb-3">
+    <p class="mb-2">
+        Cette page classe l'ensemble de la flotte par probabilité de panne dans les 7 prochains jours,
+        calculée par le modèle IA actif à partir de la dernière lecture connue de chaque équipement.
+    </p>
+    {% if current_user.role.name in ['Admin', 'Ingenieur'] %}
+    <form method="POST" action="{{ url_for('equipment.predict_fleet') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-bolt"></i> Lancer la prédiction sur toute la flotte
+        </button>
+    </form>
+    {% endif %}
+</div>
+
+<div class="glass-card table-card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr><th>#</th><th>Équipement</th><th>Type</th><th>Risque</th><th>Probabilité</th><th>Calculé le</th><th></th></tr>
+            </thead>
+            <tbody>
+                {% for r in ranked %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td><strong>{{ r.equipment_code }}</strong></td>
+                    <td>{{ r.equipment_type }}</td>
+                    <td><span class="risk-badge risk-{{ r.risk_level }}">{{ r.risk_level }}</span></td>
+                    <td>
+                        <div class="progress" style="height:8px; width:120px;">
+                            <div class="progress-bar {{ 'bg-danger' if r.risk_level in ['Critical','High'] else 'bg-warning' if r.risk_level == 'Medium' else 'bg-success' }}"
+                                 style="width: {{ (r.probability * 100) | round(0) }}%"></div>
+                        </div>
+                        {{ (r.probability * 100) | round(1) }}%
+                    </td>
+                    <td>{{ r.predicted_at[:16].replace('T', ' ') }}</td>
+                    <td><a href="{{ url_for('equipment.detail', equipment_code=r.equipment_code) }}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-eye"></i></a></td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="text-center text-muted py-4">
+                    Aucune prédiction pour l'instant. Cliquez sur "Lancer la prédiction sur toute la flotte" ci-dessus.
+                </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
