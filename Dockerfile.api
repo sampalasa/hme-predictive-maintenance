@@ -5,6 +5,11 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
+# libgomp1 is required at runtime by LightGBM/XGBoost on Debian slim images
+# (missing it causes "libgomp.so.1: cannot open shared object file").
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -12,6 +17,12 @@ COPY . .
 
 RUN mkdir -p instance logs app/ml/artifacts
 
+# See Dockerfile (web service) for why the DB + model are generated at build
+# time rather than expected on a persistent volume.
+ENV OPTUNA_N_TRIALS=5
+RUN python -m app.database.seed && python -m app.ml.training.train_pipeline
+
 EXPOSE 8000
 
-CMD ["uvicorn", "app.api_fastapi.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Shell form so $PORT (injected by most free PaaS providers) is expanded.
+CMD uvicorn app.api_fastapi.main:app --host 0.0.0.0 --port ${PORT:-8000}
